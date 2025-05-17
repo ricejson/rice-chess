@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/ricejson/rice_chess/internal/repository"
 	"github.com/ricejson/rice_chess/internal/repository/dao"
@@ -8,6 +9,7 @@ import (
 	"github.com/ricejson/rice_chess/internal/web"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"strings"
 )
 
 func main() {
@@ -18,6 +20,16 @@ func main() {
 	}
 	dao.InitTables(db)
 	server := gin.Default()
+	// 配置跨域中间件
+	server.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+		AllowHeaders:     []string{"Content-Type", "authorization"},
+		AllowMethods:     []string{"POST", "OPTIONS"},
+		ExposeHeaders:    []string{"x-jwt-token", "x-refresh-token"},
+		AllowOriginFunc: func(origin string) bool {
+			return strings.HasPrefix(origin, "http://localhost")
+		},
+	}))
 	// 注册路由
 	userDAO := dao.NewGORMUserDAO(db)
 	userRepository := repository.NewCachedUserRepository(userDAO)
