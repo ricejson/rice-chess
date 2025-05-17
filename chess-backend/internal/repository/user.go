@@ -48,6 +48,7 @@ func (repo *CachedUserRepository) FindByName(ctx context.Context, name string) (
 	return domain.User{
 		UserId:     user.UserId,
 		Username:   user.Username,
+		Password:   user.Password,
 		Score:      user.Score,
 		TotalCount: user.TotalCount,
 		WinCount:   user.WinCount,

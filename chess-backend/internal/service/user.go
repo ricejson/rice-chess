@@ -41,6 +41,8 @@ func (svc *UserServiceImpl) Login(ctx context.Context, username string, pwd stri
 	if err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(pwd)); err != nil {
 		return domain.User{}, ErrUserNotExists
 	}
+	// 3. 密码置空
+	dbUser.Password = ""
 	return dbUser, nil
 }
 
