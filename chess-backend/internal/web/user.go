@@ -40,20 +40,32 @@ func (uh *UserHandler) Login(ctx *gin.Context) {
 	username, pwd := userLoginParams.Username, userLoginParams.Password
 	isUsername, err := uh.UserNameCompile.MatchString(username)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
 		return
 	}
 	if !isUsername {
-		ctx.String(http.StatusOK, "非法用户名格式！")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "非法用户名格式！",
+		})
 		return
 	}
 	isPassword, err := uh.PasswordCompile.MatchString(pwd)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
 		return
 	}
 	if !isPassword {
-		ctx.String(http.StatusOK, "非法密码格式！")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "非法密码格式！",
+		})
 		return
 	}
 	// 3. 调用业务层处理登录逻辑
@@ -61,20 +73,20 @@ func (uh *UserHandler) Login(ctx *gin.Context) {
 	if err == service.ErrUserNotExists {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 500,
-			"msg":  "用户不存在!",
+			"msg":  "用户不存在！",
 		})
 		return
 	}
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 500,
-			"msg":  "系统错误!",
+			"msg":  "系统错误！",
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"msg":  "登录成功!",
+		"msg":  "登录成功！",
 		"data": loginUser,
 	})
 }
@@ -93,20 +105,32 @@ func (uh *UserHandler) Register(ctx *gin.Context) {
 	username, pwd := userRegisterParams.Username, userRegisterParams.Password
 	isUsername, err := uh.UserNameCompile.MatchString(username)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
 		return
 	}
 	if !isUsername {
-		ctx.String(http.StatusOK, "非法用户名格式！")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "非法用户名格式！",
+		})
 		return
 	}
 	isPassword, err := uh.PasswordCompile.MatchString(pwd)
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
 		return
 	}
 	if !isPassword {
-		ctx.String(http.StatusOK, "非法密码格式！")
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "非法密码格式！",
+		})
 		return
 	}
 	// 3. 调用业务层处理注册逻辑
@@ -114,20 +138,20 @@ func (uh *UserHandler) Register(ctx *gin.Context) {
 	if err == service.ErrUserDuplicate {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 500,
-			"msg":  "用户已存在!",
+			"msg":  "用户已存在！",
 		})
 		return
 	}
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 500,
-			"msg":  "系统错误!",
+			"msg":  "系统错误！",
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"msg":  "注册成功!",
+		"msg":  "注册成功！",
 	})
 }
 
