@@ -1,7 +1,7 @@
 import LoginPage, { Username, Password, TitleSignup, TitleLogin, Submit, Title, Logo } from '@react-login-page/page8';
 import LoginLogo from 'react-login-page/logo';
 import {useState} from "react";
-import axios from "axios";
+import request from "../axios/axios";
 import {message} from "antd";
 
 const styles = { height: 690 };
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
     // 处理注册事件
     const handleRegister = () => {
         // 发送请求到后端
-        axios.post(
+        request.post(
             'http://localhost:8081/user/register',
             signUpData,
         ).then((resp) => {
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
     // 处理登录事件
     const handleLogin = () => {
         // 发送请求到后端
-        axios.post(
+        request.post(
             'http://localhost:8081/user/login',
             loginData,
         ).then((resp) => {
@@ -55,7 +55,8 @@ const Login: React.FC = () => {
             if (resp.data && resp.data.code === 200) {
                 // 登录成功
                 messageApi.success('登录成功！')
-                location.assign('/')
+                // 跳转到游戏大厅页面
+                location.assign('/home')
             } else {
                 // 登录失败
                 messageApi.error('登录失败！')
