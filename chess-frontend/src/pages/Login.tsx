@@ -35,10 +35,10 @@ const Login: React.FC = () => {
             console.log(resp)
             if (resp?.data && resp.data.code === 200) {
                 // 注册成功
-                alert('注册成功！')
+                messageApi.success('注册成功！')
             } else {
                 // 注册失败
-                alert(resp?.data?.msg ?? '注册失败！')
+                messageApi.error(resp?.data?.msg ?? '注册失败！')
             }
         }).catch((error) => {
             console.log(error)
@@ -54,11 +54,11 @@ const Login: React.FC = () => {
             console.log(resp)
             if (resp.data && resp.data.code === 200) {
                 // 登录成功
-                alert('登录成功！')
+                messageApi.success('登录成功！')
                 location.assign('/')
             } else {
                 // 登录失败
-                alert('登录失败！')
+                messageApi.error('登录失败！')
             }
         }).catch((error) => {
             console.log(error)
@@ -66,6 +66,7 @@ const Login: React.FC = () => {
     }
     return (
         <div style={styles}>
+            {contextHolder}
             <LoginPage>
                 <Title />
                 <TitleSignup>注册</TitleSignup>
