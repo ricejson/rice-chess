@@ -7,6 +7,7 @@ import (
 	"github.com/ricejson/rice_chess/internal/repository/dao"
 	"github.com/ricejson/rice_chess/internal/service"
 	"github.com/ricejson/rice_chess/internal/web"
+	"github.com/ricejson/rice_chess/internal/web/middleware"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"strings"
@@ -35,6 +36,11 @@ func main() {
 	userRepository := repository.NewCachedUserRepository(userDAO)
 	userService := service.NewUserServiceImpl(userRepository)
 	uh := web.NewUserHandler(userService)
+	// 接入登录拦截中间件
+	server.Use(middleware.NewLoginMiddlewareBuilder().
+		Ignore("/user/login").
+		Ignore("/user/register").
+		Build())
 	uh.RegisterRoutes(server)
 	server.Run(":8081")
 }

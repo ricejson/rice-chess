@@ -3,8 +3,10 @@ package web
 import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ricejson/rice_chess/internal/service"
 	"net/http"
+	"time"
 )
 
 const (
@@ -84,6 +86,23 @@ func (uh *UserHandler) Login(ctx *gin.Context) {
 		})
 		return
 	}
+	// 4. 登录成功后使用jwt生成token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, UserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)), // 设置过期时间
+		},
+		Uid: loginUser.UserId,
+	})
+	tokenStr, err := token.SignedString([]byte("kUD7HXe4bMG6sUWV8pEyQ6JxNQTZkYtu"))
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
+		return
+	}
+	// 存放到header中
+	ctx.Header("x-jwt-token", tokenStr)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "登录成功！",
@@ -159,4 +178,10 @@ func (uh *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug := server.Group("/user")
 	ug.POST("/login", uh.Login)
 	ug.POST("/register", uh.Register)
+}
+
+// UserClaims 自定义用户载荷
+type UserClaims struct {
+	jwt.RegisteredClaims
+	Uid int64
 }
