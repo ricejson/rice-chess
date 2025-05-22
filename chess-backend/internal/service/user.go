@@ -19,6 +19,8 @@ type UserService interface {
 	Login(ctx context.Context, username string, pwd string) (domain.User, error)
 	// Register 注册业务
 	Register(ctx context.Context, username string, pwd string) error
+	// GetUserInfo 获取用户信息
+	GetUserInfo(ctx context.Context, id int64) (domain.User, error)
 }
 
 type UserServiceImpl struct {
@@ -61,4 +63,18 @@ func (svc *UserServiceImpl) Register(ctx context.Context, username string, pwd s
 		return ErrUserDuplicate
 	}
 	return nil
+}
+
+func (svc *UserServiceImpl) GetUserInfo(ctx context.Context, userId int64) (domain.User, error) {
+	// 获取用户信息
+	user, err := svc.repo.FindById(ctx, userId)
+	if err == repository.ErrUserIdNotFound {
+		return domain.User{}, ErrUserNotExists
+	}
+	if err != nil {
+		return domain.User{}, err
+	}
+	// 用户信息脱敏
+	user.Password = ""
+	return user, nil
 }

@@ -174,10 +174,48 @@ func (uh *UserHandler) Register(ctx *gin.Context) {
 	})
 }
 
+func (uh *UserHandler) GetUserProfile(ctx *gin.Context) {
+	// 1. 从ctx中取出userId
+	value, exists := ctx.Get("userId")
+	if !exists {
+		// 键不存在
+		// 有人在搞你
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
+		return
+	}
+	userId := value.(int64)
+	// 2. 根据id查找用户
+	user, err := uh.userSvc.GetUserInfo(ctx, userId)
+	if err == service.ErrUserNotExists {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "用户不存在！",
+		})
+		return
+	}
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  "系统错误！",
+		})
+		return
+	}
+	// 3. 返回用户信息
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "获取用户信息成功！",
+		"data": user,
+	})
+}
+
 func (uh *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug := server.Group("/user")
 	ug.POST("/login", uh.Login)
 	ug.POST("/register", uh.Register)
+	ug.GET("/profile", uh.GetUserProfile)
 }
 
 // UserClaims 自定义用户载荷

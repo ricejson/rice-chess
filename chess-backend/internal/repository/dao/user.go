@@ -11,12 +11,14 @@ import (
 var (
 	ErrUserDuplicate    = errors.New("user duplicate")
 	ErrUserNameNotFound = errors.New("username not found")
+	ErrUserIdNotFound   = errors.New("userid not found")
 )
 
 // UserDAO 用户数据访问层接口
 type UserDAO interface {
 	Insert(ctx context.Context, user User) error
 	FindByName(ctx context.Context, name string) (User, error)
+	FindById(ctx context.Context, id int64) (User, error)
 }
 
 type GORMUserDAO struct {
@@ -55,6 +57,16 @@ func (dao *GORMUserDAO) FindByName(ctx context.Context, name string) (User, erro
 		return User{}, ErrUserNameNotFound
 	}
 	return user, nil
+}
+
+// FindById 根据id查找用户
+func (dao *GORMUserDAO) FindById(ctx context.Context, id int64) (User, error) {
+	var dbUser User
+	err := dao.db.WithContext(ctx).Where("user_id=?", id).Find(&dbUser).Error
+	if err != nil {
+		return User{}, ErrUserIdNotFound
+	}
+	return dbUser, nil
 }
 
 // User 用户实体
