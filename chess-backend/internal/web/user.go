@@ -207,7 +207,13 @@ func (uh *UserHandler) GetUserProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "获取用户信息成功！",
-		"data": user,
+		"data": UserVO{
+			UserId:     user.UserId,
+			Username:   user.Username,
+			Score:      user.Score,
+			TotalCount: user.TotalCount,
+			WinCount:   user.WinCount,
+		},
 	})
 }
 
