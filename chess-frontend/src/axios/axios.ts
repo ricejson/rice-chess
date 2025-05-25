@@ -15,13 +15,13 @@ request.interceptors.response.use((resp) => {
     }
     // 如果接收到401请求直接跳转到登录界面
     if (resp.status === 401) {
-        window.location.href = '/user/login';
+        window.location.href = '/login';
     }
     return resp;
 }, (err) => {
     console.log(err)
     if (err.response.status === 401) {
-        window.location.href= "/user/login";
+        window.location.href= "/login";
     }
     return err
 });
