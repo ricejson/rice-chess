@@ -4,6 +4,7 @@ import { Card, Row, Col, Typography, Button, Space, Avatar, Progress, Modal } fr
 import { UserOutlined, TrophyOutlined, FireOutlined, TeamOutlined, RocketOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
+import request from "../axios/axios";
 
 const { Title, Text } = Typography;
 
@@ -42,9 +43,17 @@ const PulseButton = styled(Button)`
   }
 `;
 
+interface User {
+    userId: number,
+    username: string,
+    score: number,
+    totalCount: number,
+    winCount: number,
+}
+
 const Home: React.FC = () => {
     const [isMatching, setIsMatching] = useState(false);
-    const [userData] = useState({
+    const [userData, setUserData] = useState({
         nickname: 'CyberPlayer',
         rating: 2450,
         totalGames: 128,
@@ -53,7 +62,28 @@ const Home: React.FC = () => {
     });
 
     const navigate = useNavigate();
-
+    // 项目初始化回调函数
+    useEffect(() => {
+        // 1. 获取当前登录用户信息
+        request.get('/user/profile')
+            .then((resp) => {
+                if (resp.data && resp.data.code === 200) {
+                    const userInfo: User = resp.data.data
+                    setUserData((src) => ({
+                        ...src,
+                        nickname: userInfo.username,
+                        totalGames: userInfo.totalCount,
+                        wins: userInfo.winCount,
+                        rating: userInfo.score,
+                    }))
+                } else {
+                    console.log('获取用户信息失败！')
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }, [])
     useEffect(() => {
         if (isMatching) {
             const timer = setTimeout(() => {
@@ -68,7 +98,7 @@ const Home: React.FC = () => {
         }
     }, [isMatching]);
 
-    const winRate = Math.round((userData.wins / userData.totalGames) * 100);
+    const winRate = Math.round((userData.totalGames === 0 ? 0 : (userData.wins / userData.totalGames)) * 100);
 
     return (
         <GradientBackground>
