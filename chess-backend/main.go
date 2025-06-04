@@ -36,11 +36,15 @@ func main() {
 	userRepository := repository.NewCachedUserRepository(userDAO)
 	userService := service.NewUserServiceImpl(userRepository)
 	uh := web.NewUserHandler(userService)
+	mh := web.NewMatchHandler()
 	// 接入登录拦截中间件
 	server.Use(middleware.NewLoginMiddlewareBuilder().
 		Ignore("/user/login").
 		Ignore("/user/register").
+		// TODO: 这个路径理应拦截
+		Ignore("/match/findMatch").
 		Build())
 	uh.RegisterRoutes(server)
+	mh.RegisterRoutes(server)
 	server.Run(":8081")
 }
