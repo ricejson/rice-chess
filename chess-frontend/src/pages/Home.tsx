@@ -87,7 +87,6 @@ const Home: React.FC = () => {
     useEffect(() => {
         if (isMatching) {
             const timer = setTimeout(() => {
-                setIsMatching(false);
                 Modal.info({
                     title: '匹配成功!',
                     content: '正在进入对战房间...',
@@ -99,6 +98,53 @@ const Home: React.FC = () => {
     }, [isMatching]);
 
     const winRate = Math.round((userData.totalGames === 0 ? 0 : (userData.wins / userData.totalGames)) * 100);
+
+    // 建立 WebSocket 连接
+    const ws = new WebSocket("ws://localhost:8081/match/findMatch");
+
+    ws.onopen = () => {
+        console.log("连接建立成功...");
+    }
+    ws.onclose = () => {
+        console.log("连接已断开...");
+    }
+    ws.onerror = (e) => {
+        console.log("连接发生错误");
+    }
+    ws.onmessage = (e) => {
+        // 响应反序列化
+        const resp = JSON.parse(e.data);
+        if (resp?.code === 200) {
+            if (resp.message === "startMatch") {
+                // 服务器返回开始匹配
+                // 设置状态为开始匹配
+                setIsMatching(true);
+            } else {
+                // 服务器返回结束匹配
+                // 设置状态为匹配中
+                setIsMatching(false);
+            }
+        } else {
+            console.log("发生了异常" + resp.message);
+        }
+    }
+    // 处理开始匹配逻辑
+    const handleMatch = () => {
+        // 判断到底是开始匹配还是取消匹配
+        if (!isMatching) {
+            // 开始匹配
+            // 向后端发送请求
+            ws.send(JSON.stringify({
+                "message": "startMatch"
+            }))
+        } else {
+            // 取消匹配
+            // 向后端发送请求
+            ws.send(JSON.stringify({
+                "message": "stopMatch"
+            }))
+        }
+    }
 
     return (
         <GradientBackground>
@@ -228,8 +274,7 @@ const Home: React.FC = () => {
                                     size="large"
                                     shape="round"
                                     icon={<FireOutlined />}
-                                    loading={isMatching}
-                                    onClick={() => setIsMatching(true)}
+                                    onClick={handleMatch}
                                     style={{
                                         background: 'linear-gradient(45deg, #ff6b6b, #ff8e53)',
                                         border: 'none',
@@ -238,7 +283,7 @@ const Home: React.FC = () => {
                                         fontSize: '1.2rem'
                                     }}
                                 >
-                                    {isMatching ? '匹配中...' : '开始匹配'}
+                                    {isMatching ? '匹配中（点击取消）' : '开始匹配'}
                                 </PulseButton>
                             </div>
 
